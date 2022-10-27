@@ -9,6 +9,22 @@ export function Home() {
   const [tasks, setTasks] = useState<Task[]>([]);
 
   function handleAddTask(newTaskTitle: string) {
+    const foundTask = tasks.find(task => task.title === newTaskTitle);
+
+    if (foundTask) {
+      Alert.alert(
+        "Task já cadastrada",
+        "Você não pode cadastrar uma task com o mesmo nome",
+        [
+          {
+            text: "OK",
+          }
+        ]
+      )
+
+      return;
+    }
+
     const newTask = {
       id: new Date().getTime(),
       title: newTaskTitle,
@@ -57,10 +73,10 @@ export function Home() {
 
       <TodoInput addTask={handleAddTask} />
 
-      <TasksList 
-        tasks={tasks} 
+      <TasksList
+        tasks={tasks}
         toggleTaskDone={handleToggleTaskDone}
-        removeTask={handleRemoveTask} 
+        removeTask={handleRemoveTask}
       />
     </View>
   )
