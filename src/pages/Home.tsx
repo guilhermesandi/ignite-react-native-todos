@@ -34,6 +34,10 @@ export function Home() {
     setTasks(oldState => [...oldState, newTask])
   }
 
+  function handleEditTask(id: number) {
+    // TODO edit task
+  }
+
   function handleToggleTaskDone(id: number) {
     const updatedTasks = tasks.map(task => ({ ...task }))
 
