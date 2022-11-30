@@ -1,10 +1,12 @@
-import React from 'react';
-import { Image, TouchableOpacity, View, Text, StyleSheet } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { Image, TouchableOpacity, View, Text, StyleSheet, TextInput } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 
 import { ItemWrapper } from './ItemWrapper';
 
 import trashIcon from '../assets/icons/trash/trash.png'
+import penIcon from '../assets/icons/pen/pen.png'
+import closeIcon from '../assets/icons/close/close.png'
 
 export interface Task {
   id: number;
@@ -16,10 +18,38 @@ interface TasksItemProps {
   task: Task;
   index: number;
   toggleTaskDone: (id: number) => void;
+  editTask: (id: number, taskNewTitle: string) => void;
   removeTask: (id: number) => void;
 }
 
-export function TasksItem({ task, index, toggleTaskDone, removeTask }: TasksItemProps) {
+export function TasksItem({ task, index, toggleTaskDone, editTask, removeTask }: TasksItemProps) {
+  const [isEditable, setIsEditable] = useState(false);
+  const [newTitle, setNewTitle] = useState(task.title);
+
+  const textInputRef = useRef<TextInput>(null)
+
+  function handleStartEditing() {
+    setIsEditable(true);
+  }
+
+  function handleCancelEditing() {
+    setNewTitle(task.title);
+    setIsEditable(false);
+  }
+
+  function handleSubmitEditing() {
+    editTask(task.id, newTitle)
+    setIsEditable(false);
+  }
+
+  useEffect(() => {
+    if (isEditable) {
+      textInputRef.current?.focus();
+    } else {
+      textInputRef.current?.blur();
+    }
+  }, [isEditable]);
+
   return (
     <ItemWrapper index={index}>
       <View>
@@ -42,21 +72,47 @@ export function TasksItem({ task, index, toggleTaskDone, removeTask }: TasksItem
             )}
           </View>
 
-          <Text
+          <TextInput
+            ref={textInputRef}
+            value={newTitle}
+            onChangeText={setNewTitle}
+            editable={isEditable}
+            onSubmitEditing={handleSubmitEditing}
             style={task.done ? styles.taskTextDone : styles.taskText}
-          >
-            {task.title}
-          </Text>
+          />
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity
-        testID={`trash-${index}`}
-        style={{ paddingHorizontal: 24 }}
-        onPress={() => removeTask(task.id)}
-      >
-        <Image source={trashIcon} />
-      </TouchableOpacity>
+      <View style={{ flexDirection: 'row' }}>
+        <View style={{ height: 24, width: 24, marginRight: 12, justifyContent: 'center', alignItems: 'center' }}>
+          {isEditable ? (
+            <TouchableOpacity
+              testID={`x-${index}`}
+              onPress={handleCancelEditing}
+            >
+              <Image source={closeIcon} />
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              testID={`trash-${index}`}
+              onPress={handleStartEditing}
+            >
+              <Image source={penIcon} />
+            </TouchableOpacity>
+          )}
+        </View>
+
+        <View style={{ width: 1, height: 24, backgroundColor: '#C4C4C4' }} />
+
+        <TouchableOpacity
+          testID={`trash-${index}`}
+          style={{ paddingRight: 24, paddingLeft: 12 }}
+          disabled={isEditable}
+          onPress={() => removeTask(task.id)}
+        >
+          <Image source={trashIcon} style={isEditable && { opacity: 0.2 }} />
+        </TouchableOpacity>
+      </View>
     </ItemWrapper>
   )
 }
