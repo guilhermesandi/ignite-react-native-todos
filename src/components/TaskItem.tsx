@@ -33,8 +33,8 @@ export function TasksItem({ task, index, toggleTaskDone, editTask, removeTask }:
   }
 
   function handleCancelEditing() {
-    setNewTitle(task.title);
     setIsEditable(false);
+    setNewTitle(task.title);
   }
 
   function handleSubmitEditing() {
